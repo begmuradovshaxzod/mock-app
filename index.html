@@ -6,7 +6,18 @@
 function showErr(t){var d=document.getElementById('errbox');if(!d){d=document.createElement('div');d.id='errbox';
  d.style.cssText='position:fixed;left:0;right:0;bottom:0;background:#b00020;color:#fff;padding:10px 14px;font:12px/1.4 monospace;z-index:99999;white-space:pre-wrap';
  (document.body||document.documentElement).appendChild(d);}d.textContent+=t+'\n';}
-window.addEventListener('error',function(e){showErr('Xato: '+e.message+' ['+((e.filename||'').split('/').pop().split('?')[0])+':'+e.lineno+']');});
+window.addEventListener('error',function(e){
+  var f=(e.filename||'').split('/').pop().split('?')[0];
+  showErr('Xato: '+e.message+' ['+f+':'+e.lineno+']');
+  if(f==='questions.js'){
+    fetch('questions.js?d='+Date.now()).then(function(r){return r.text()}).then(function(t){
+      var L=t.split('\n'), n=e.lineno;
+      showErr('questions.js: '+t.length+' belgi, '+L.length+' qator (kerak: 35524 belgi, 275 qator)');
+      showErr('Qator '+n+': '+(L[n-1]||'').slice(0,90));
+      showErr('Oxirgi qator: '+(L[L.length-2]||'').slice(-60));
+    }).catch(function(){});
+  }
+});
 </script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
