@@ -182,7 +182,11 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
   </div>
 </div>
 
-<script src="questions.js"></script>
+<script>
+window.__err='';
+window.addEventListener('error',function(e){ window.__err=(e.message||'')+' '+(e.lineno||''); });
+document.write('<script src="questions.js?t='+Date.now()+'"><\/script>');
+</script>
 <script>
 const tg = window.Telegram && Telegram.WebApp;
 try{ tg.ready(); tg.expand(); tg.setHeaderColor('#E5243B'); tg.setBackgroundColor('#0E1A33'); }catch(e){}
@@ -202,7 +206,11 @@ function openList(skill){
   document.getElementById('ltitle').textContent = skill ? NAMES[skill] : 'Mock imtihonlar';
   const box=document.getElementById('exams'); box.innerHTML='';
   const list=EXAMS.filter(e=>!skill||e.skill===skill);
-  if(!list.length){ box.innerHTML='<p class="note">Bu bo‘limda hali test yo‘q.</p>'; }
+  if(!list.length){
+    const p=document.createElement('p'); p.className='note';
+    p.textContent = window.EXAMS ? 'Bu bo‘limda hali test yo‘q.' : 'questions.js yuklanmadi yoki ichida xato bor. ' + (window.__err||'');
+    box.appendChild(p);
+  }
   list.forEach(e=>{
     const c=document.createElement('button'); c.className='card';
     c.innerHTML='<h3></h3><p></p><span class="btn">Boshlash</span>';
@@ -288,4 +296,5 @@ function finish(){
 }
 </script>
 </body>
-</html>
+  </html>
+  
