@@ -1,19 +1,282 @@
 <!DOCTYPE html>
-<html>
+<html lang="uz">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Turk tili mock</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#E5243B; --red-dark:#B81A2E; --red-soft:rgba(229,36,59,.16);
+  --ink:#F3F5FA; --muted:#9AA8C7; --line:#2A3E6B; --bg:#0E1A33; --paper:#16264A; --card:#132243;
+  --ok:#2FBF71; --ok-soft:rgba(47,191,113,.15);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;color-scheme:dark;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.5}
+h1,h2,h3{font-family:'Bricolage Grotesque',Inter,sans-serif;margin:0;line-height:1.15}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+.screen{display:none;min-height:100vh;padding-bottom:96px}
+.screen.on{display:block}
+.wrap{padding:0 18px}
+
+/* Hero */
+.hero{background:var(--red);color:#fff;padding:28px 18px 56px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;
+  background:radial-gradient(circle at 62% 50%,var(--red) 0 58%,rgba(255,255,255,.14) 59% 100%)}
+.hero small{opacity:.85;font-size:14px}
+.hero h1{font-size:30px;font-weight:800;margin-top:6px;max-width:80%}
+.last{margin:-34px 18px 0;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;z-index:2;
+  box-shadow:0 12px 26px -14px rgba(0,0,0,.6)}
+.last b{font-family:'Bricolage Grotesque';font-size:26px;color:var(--red)}
+.last span{color:var(--muted);font-size:14px}
+
+/* Menu */
+.sec-title{font-size:15px;color:var(--muted);margin:26px 0 10px;font-weight:600}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{text-align:left;padding:16px 14px 16px 16px;border-radius:16px;background:var(--paper);border:1px solid var(--line);
+  border-left:5px solid var(--red);min-height:96px;display:flex;flex-direction:column;justify-content:space-between}
+.tile h3{font-size:18px}
+.tile p{margin:4px 0 0;font-size:13px;color:var(--muted);line-height:1.3}
+.tile.soon{opacity:.6;border-left-color:#4A5F8F}
+.tile.main{grid-column:1/-1;background:var(--red);color:#fff;border-color:var(--red);border-left-color:#fff}
+.tile.main p{color:#ffe3e6}
+
+/* Top bars */
+.top{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--line);
+  padding:12px 18px;display:flex;align-items:center;gap:12px}
+.back{width:38px;height:38px;border-radius:12px;background:var(--paper);color:#fff;font-size:20px;font-weight:700}
+.top h2{font-size:19px;flex:1}
+.timer{font-family:'Bricolage Grotesque';font-weight:700;font-size:18px;background:var(--red);color:#fff;
+  padding:6px 12px;border-radius:999px;font-variant-numeric:tabular-nums}
+.timer.low{animation:pulse 1s infinite}
+@keyframes pulse{50%{background:var(--red-dark)}}
+.bar{height:5px;background:var(--line)}
+.bar i{display:block;height:100%;width:0;background:var(--red);transition:width .25s}
+
+/* Mock list */
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:12px;text-align:left;width:100%}
+.card h3{font-size:18px}
+.card p{margin:4px 0 12px;color:var(--muted);font-size:14px}
+.btn{display:inline-block;background:var(--red);color:#fff;font-weight:600;border-radius:12px;padding:12px 20px}
+.btn.ghost{background:var(--paper);color:var(--ink);border:1px solid var(--line)}
+.btn.block{display:block;width:100%;text-align:center}
+
+/* Question */
+.passage{background:var(--paper);border-left:4px solid var(--red);border-radius:0 12px 12px 0;padding:14px 16px;margin:18px 0 6px;
+  font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:1.65}
+.qno{color:var(--red);font-weight:700;font-size:14px;margin-top:18px}
+.qtext{font-family:'Bricolage Grotesque';font-weight:700;font-size:21px;margin:4px 0 14px}
+.opt{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:12px 14px;border:1.5px solid var(--line);
+  border-radius:14px;margin-bottom:10px;background:var(--card)}
+.bub{flex:none;width:34px;height:34px;border-radius:50%;border:2px solid #4A5F8F;display:grid;place-items:center;
+  font-weight:700;font-size:14px;color:var(--muted)}
+.opt.sel{border-color:var(--red);background:var(--red-soft)}
+.opt.sel .bub{background:var(--red);border-color:var(--red);color:#fff}
+.passage{color:var(--ink)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.right .bub{background:var(--ok);border-color:var(--ok);color:#fff}
+.opt.wrong{border-color:var(--red);background:var(--red-soft)}
+.opt.wrong .bub{background:var(--red);border-color:var(--red);color:#fff}
+
+/* Bottom bar */
+.dock{position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--line);
+  padding:10px 18px calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;z-index:20}
+.dock .btn{flex:1;text-align:center}
+
+/* Sheet */
+.sheet{position:fixed;inset:0;background:rgba(4,8,18,.7);display:none;align-items:flex-end;z-index:30}
+.sheet.on{display:flex}
+.sheet>div{background:var(--card);width:100%;border-radius:22px 22px 0 0;padding:18px 18px calc(22px + env(safe-area-inset-bottom,0px));max-height:80vh;overflow:auto}
+.nums{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:14px 0}
+.num{aspect-ratio:1;border-radius:50%;border:2px solid var(--line);font-weight:700;display:grid;place-items:center}
+.num.done{background:var(--red);border-color:var(--red);color:#fff}
+.num.cur{outline:3px solid #fff}
+.num.right{background:var(--ok);border-color:var(--ok);color:#fff}
+.num.wrong{background:var(--red);border-color:var(--red);color:#fff}
+
+/* Result */
+.score{background:linear-gradient(160deg,var(--red),var(--red-dark));color:#fff;text-align:center;padding:32px 18px 36px}
+.score .big{font-family:'Bricolage Grotesque';font-size:72px;font-weight:800;line-height:1}
+.score .big small{font-size:28px;opacity:.8}
+.badge{display:inline-block;margin-top:12px;background:var(--bg);color:#fff;font-weight:700;border-radius:999px;padding:6px 16px}
+.expl{background:var(--paper);border-radius:12px;padding:10px 12px;font-size:14px;color:var(--muted);margin:-2px 0 6px}
+.note{font-size:13px;color:var(--muted);margin:14px 0}
+</style>
 </head>
 <body>
-  <h2 id="salom">Yuklanmoqda...</h2>
-  <button onclick="Telegram.WebApp.close()">Yopish</button>
-  <script>
-    const tg = Telegram.WebApp;
-    tg.ready();
-    tg.expand();
-    const u = tg.initDataUnsafe.user;
-    document.getElementById("salom").innerText =
-      "Salom, " + (u ? u.first_name : "mehmon") + "!";
-  </script>
+
+<!-- HOME -->
+<section id="home" class="screen on">
+  <div class="hero">
+    <small>Milliy sertifikat · Turk tili</small>
+    <h1 id="hello">Merhaba!</h1>
+  </div>
+  <div class="last">
+    <div><span>Oxirgi mock natijasi</span><br><b id="lastScore">—</b></div>
+    <button class="btn" onclick="openList()">Mock boshlash</button>
+  </div>
+  <div class="wrap">
+    <div class="sec-title">Bo‘limlar</div>
+    <div class="grid">
+      <button class="tile main" onclick="openList()"><h3>Mock imtihon</h3><p>Okuma · Dinleme · Yazma · Konuşma</p></button>
+      <button class="tile" onclick="openList()"><h3>Okuma</h3><p>O‘qib tushunish</p></button>
+      <button class="tile soon" onclick="soon()"><h3>Dinleme</h3><p>Eshitib tushunish</p></button>
+      <button class="tile soon" onclick="soon()"><h3>Yazma</h3><p>AI baholaydi</p></button>
+      <button class="tile soon" onclick="soon()"><h3>Konuşma</h3><p>AI baholaydi</p></button>
+      <button class="tile soon" onclick="soon()"><h3>Gramer</h3><p>A1 dan C1 gacha</p></button>
+      <button class="tile soon" onclick="soon()"><h3>Video darslar</h3><p>Ustozlardan</p></button>
+      <button class="tile soon" onclick="soon()"><h3>Lug‘at</h3><p>So‘z yodlash</p></button>
+      <button class="tile soon" onclick="soon()"><h3>Natijalarim</h3><p>Kuchli va zaif tomonlar</p></button>
+    </div>
+  </div>
+</section>
+
+<!-- LIST -->
+<section id="list" class="screen">
+  <div class="top"><button class="back" onclick="show('home')">‹</button><h2>Mock imtihonlar</h2></div>
+  <div class="wrap">
+    <button class="card" onclick="startTest()">
+      <h3>Okuma · Demo 1</h3>
+      <p>5 ta savol · 10 daqiqa</p>
+      <span class="btn">Boshlash</span>
+    </button>
+    <p class="note">Bu demo. To‘liq mock 35 ta savol va 60 daqiqadan iborat bo‘ladi, savollarni o‘zingiz qo‘shasiz.</p>
+  </div>
+</section>
+
+<!-- TEST -->
+<section id="test" class="screen">
+  <div class="top">
+    <button class="back" onclick="confirmExit()">‹</button>
+    <h2>Okuma</h2>
+    <div class="timer" id="timer">10:00</div>
+  </div>
+  <div class="bar"><i id="prog"></i></div>
+  <div class="wrap" id="qbox"></div>
+  <div class="dock">
+    <button class="btn ghost" id="prev">Orqaga</button>
+    <button class="btn ghost" onclick="openSheet()">Varaqa</button>
+    <button class="btn" id="next">Keyingi</button>
+  </div>
+</section>
+
+<!-- RESULT -->
+<section id="result" class="screen">
+  <div class="score">
+    <div class="big"><span id="rc">0</span><small> / <span id="rt">5</span></small></div>
+    <div class="badge" id="rlevel"></div>
+  </div>
+  <div class="wrap">
+    <div class="sec-title">Javoblar va yechimlar</div>
+    <div class="nums" id="rnums"></div>
+    <div id="rbox"></div>
+    <p class="note">Bu mashq uchun taxminiy natija. Rasmiy imtihon balli emas.</p>
+    <button class="btn block" onclick="show('home')">Bosh sahifa</button>
+  </div>
+</section>
+
+<!-- SHEET -->
+<div class="sheet" id="sheet" onclick="if(event.target===this)closeSheet()">
+  <div>
+    <h3>Javob varaqasi</h3>
+    <div class="nums" id="snums"></div>
+    <button class="btn block" onclick="finish()">Yakunlash</button>
+  </div>
+</div>
+
+<script>
+const tg = window.Telegram && Telegram.WebApp;
+try{ tg.ready(); tg.expand(); tg.setHeaderColor('#E5243B'); tg.setBackgroundColor('#0E1A33'); }catch(e){}
+const user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+document.getElementById('hello').textContent = 'Merhaba, ' + (user && user.first_name ? user.first_name : 'Aşkıto') + '!';
+
+/* ---- Savollar (demo) ---- */
+const P1 = "Ayşe her sabah saat yedide kalkar. Kahvaltıdan sonra otobüsle okula gider. Okulu evinden biraz uzaktır, bu yüzden yolculuk yaklaşık kırk dakika sürer. Akşam eve döndüğünde kitap okumayı sever.";
+const Q = [
+  {p:P1, q:"Ayşe okula nasıl gider?", o:["Yürüyerek","Otobüsle","Bisikletle","Arabayla"], a:1,
+   e:"Matnda: «otobüsle okula gider». To‘g‘ri javob B."},
+  {p:P1, q:"Ayşe akşam eve döndüğünde ne yapmayı sever?", o:["Televizyon izlemeyi","Müzik dinlemeyi","Kitap okumayı","Yemek yapmayı"], a:2,
+   e:"Matnning oxirgi gapi: «kitap okumayı sever». To‘g‘ri javob C."},
+  {p:"", q:"Dün arkadaşlarımla sinemaya ____.", o:["gidiyorum","gittim","gideceğim","gider"], a:1,
+   e:"«Dün» o‘tgan zamonni bildiradi, shuning uchun -di qo‘shimchasi: gittim."},
+  {p:"", q:"Yarın hava güzel olursa pikniğe ____.", o:["gideriz","gittik","gidiyorduk","gitmiştik"], a:0,
+   e:"«Yarın» kelasi zamon + shart mayli (-sa). Kelasi/keng zamon: gideriz."},
+  {p:"Sınavdan önce çok ders çalıştığım için başarılı oldum.", q:"Bu cümlede «için» neyi gösterir?", o:["Zaman","Sebep","Karşılaştırma","Şart"], a:1,
+   e:"«Çok ders çalıştığım için» = sabab. Natija: muvaffaqiyat."}
+];
+const TIME = 10*60;
+let cur=0, ans=[], left=TIME, tick=null;
+
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id)); window.scrollTo(0,0); }
+function soon(){ const m='Bu bo‘lim tez orada qo‘shiladi'; tg && tg.showAlert ? tg.showAlert(m) : alert(m); }
+function openList(){ show('list'); }
+
+function startTest(){
+  cur=0; ans=Array(Q.length).fill(null); left=TIME;
+  clearInterval(tick); tick=setInterval(()=>{ left--; drawTimer(); if(left<=0) finish(); },1000);
+  drawTimer(); show('test'); drawQ();
+}
+function drawTimer(){
+  const t=document.getElementById('timer');
+  t.textContent=String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0');
+  t.classList.toggle('low', left<60);
+}
+function drawQ(){
+  const d=Q[cur], box=document.getElementById('qbox');
+  box.innerHTML='';
+  if(d.p){ const p=document.createElement('div'); p.className='passage'; p.textContent=d.p; box.appendChild(p); }
+  const n=document.createElement('div'); n.className='qno'; n.textContent='Savol '+(cur+1)+' / '+Q.length; box.appendChild(n);
+  const q=document.createElement('div'); q.className='qtext'; q.textContent=d.q; box.appendChild(q);
+  d.o.forEach((txt,i)=>{
+    const b=document.createElement('button'); b.className='opt'+(ans[cur]===i?' sel':'');
+    b.innerHTML='<span class="bub">'+'ABCD'[i]+'</span><span></span>'; b.lastChild.textContent=txt;
+    b.onclick=()=>{ ans[cur]=i; drawQ(); tg&&tg.HapticFeedback&&tg.HapticFeedback.selectionChanged(); };
+    box.appendChild(b);
+  });
+  document.getElementById('prog').style.width=((cur+1)/Q.length*100)+'%';
+  const prev=document.getElementById('prev'), next=document.getElementById('next');
+  prev.style.visibility=cur===0?'hidden':'visible';
+  prev.onclick=()=>{cur--;drawQ();window.scrollTo(0,0)};
+  if(cur===Q.length-1){ next.textContent='Yakunlash'; next.onclick=openSheet; }
+  else { next.textContent='Keyingi'; next.onclick=()=>{cur++;drawQ();window.scrollTo(0,0)}; }
+}
+function openSheet(){
+  const box=document.getElementById('snums'); box.innerHTML='';
+  Q.forEach((_,i)=>{ const b=document.createElement('button');
+    b.className='num'+(ans[i]!==null?' done':'')+(i===cur?' cur':''); b.textContent=i+1;
+    b.onclick=()=>{cur=i;closeSheet();drawQ();}; box.appendChild(b); });
+  document.getElementById('sheet').classList.add('on');
+}
+function closeSheet(){ document.getElementById('sheet').classList.remove('on'); }
+function confirmExit(){
+  if(confirm('Testdan chiqasizmi? Natija saqlanmaydi.')){ clearInterval(tick); show('list'); }
+}
+function finish(){
+  clearInterval(tick); closeSheet();
+  let ok=0; Q.forEach((d,i)=>{ if(ans[i]===d.a) ok++; });
+  document.getElementById('rc').textContent=ok;
+  document.getElementById('rt').textContent=Q.length;
+  const pct=ok/Q.length;
+  document.getElementById('rlevel').textContent = pct>=.8?'Juda yaxshi':pct>=.5?'Yaxshi, davom eting':'Ko‘proq mashq kerak';
+  document.getElementById('lastScore').textContent=ok+' / '+Q.length;
+  const nums=document.getElementById('rnums'); nums.innerHTML='';
+  const rb=document.getElementById('rbox'); rb.innerHTML='';
+  Q.forEach((d,i)=>{
+    const good=ans[i]===d.a;
+    const n=document.createElement('div'); n.className='num '+(good?'right':'wrong'); n.textContent=i+1; nums.appendChild(n);
+    const h=document.createElement('div'); h.className='qno'; h.textContent='Savol '+(i+1); rb.appendChild(h);
+    const q=document.createElement('div'); q.className='qtext'; q.style.fontSize='18px'; q.textContent=d.q; rb.appendChild(q);
+    d.o.forEach((t,k)=>{
+      const o=document.createElement('div'); o.className='opt'+(k===d.a?' right':(k===ans[i]?' wrong':''));
+      o.innerHTML='<span class="bub">'+'ABCD'[k]+'</span><span></span>'; o.lastChild.textContent=t; rb.appendChild(o);
+    });
+    const e=document.createElement('div'); e.className='expl'; e.textContent=(ans[i]===null?'Javob berilmadi. ':'')+d.e; rb.appendChild(e);
+  });
+  show('result');
+}
+</script>
 </body>
 </html>
