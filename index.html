@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+.audio{width:100%;margin:16px 0 4px}
+.partname{margin-top:18px;font-weight:600;color:var(--muted);font-size:14px}
 :root{
   --red:#E5243B; --red-dark:#B81A2E; --red-soft:rgba(229,36,59,.16);
   --ink:#F3F5FA; --muted:#9AA8C7; --line:#2A3E6B; --bg:#0E1A33; --paper:#16264A; --card:#132243;
@@ -26,7 +28,7 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 .hero::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;
   background:radial-gradient(circle at 62% 50%,var(--red) 0 58%,rgba(255,255,255,.14) 59% 100%)}
 .hero small{opacity:.85;font-size:14px}
-.hero h1{font-size:30px;font-weight:800;margin-top:6px;max-width:80%}
+.hero h1{font-size:26px;font-weight:800;margin-top:6px;max-width:72%}
 .last{margin:-34px 18px 0;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;
   display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;z-index:2;
   box-shadow:0 12px 26px -14px rgba(0,0,0,.6)}
@@ -122,8 +124,8 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
     <div class="sec-title">Bo‘limlar</div>
     <div class="grid">
       <button class="tile main" onclick="openList()"><h3>Mock imtihon</h3><p>Okuma · Dinleme · Yazma · Konuşma</p></button>
-      <button class="tile" onclick="openList()"><h3>Okuma</h3><p>O‘qib tushunish</p></button>
-      <button class="tile soon" onclick="soon()"><h3>Dinleme</h3><p>Eshitib tushunish</p></button>
+      <button class="tile" onclick="openList('okuma')"><h3>Okuma</h3><p>O‘qib tushunish</p></button>
+      <button class="tile" onclick="openList('dinleme')"><h3>Dinleme</h3><p>Eshitib tushunish</p></button>
       <button class="tile soon" onclick="soon()"><h3>Yazma</h3><p>AI baholaydi</p></button>
       <button class="tile soon" onclick="soon()"><h3>Konuşma</h3><p>AI baholaydi</p></button>
       <button class="tile soon" onclick="soon()"><h3>Gramer</h3><p>A1 dan C1 gacha</p></button>
@@ -136,22 +138,15 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 
 <!-- LIST -->
 <section id="list" class="screen">
-  <div class="top"><button class="back" onclick="show('home')">‹</button><h2>Mock imtihonlar</h2></div>
-  <div class="wrap">
-    <button class="card" onclick="startTest()">
-      <h3>Okuma · Demo 1</h3>
-      <p>5 ta savol · 10 daqiqa</p>
-      <span class="btn">Boshlash</span>
-    </button>
-    <p class="note">Bu demo. To‘liq mock 35 ta savol va 60 daqiqadan iborat bo‘ladi, savollarni o‘zingiz qo‘shasiz.</p>
-  </div>
+  <div class="top"><button class="back" onclick="show('home')">‹</button><h2 id="ltitle">Mock imtihonlar</h2></div>
+  <div class="wrap" id="exams"></div>
 </section>
 
 <!-- TEST -->
 <section id="test" class="screen">
   <div class="top">
     <button class="back" onclick="confirmExit()">‹</button>
-    <h2>Okuma</h2>
+    <h2 id="ttitle">Test</h2>
     <div class="timer" id="timer">10:00</div>
   </div>
   <div class="bar"><i id="prog"></i></div>
@@ -187,35 +182,44 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
   </div>
 </div>
 
+<script src="questions.js"></script>
 <script>
 const tg = window.Telegram && Telegram.WebApp;
 try{ tg.ready(); tg.expand(); tg.setHeaderColor('#E5243B'); tg.setBackgroundColor('#0E1A33'); }catch(e){}
 const user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
 document.getElementById('hello').textContent = 'Merhaba, ' + (user && user.first_name ? user.first_name : 'Aşkıto') + '!';
 
-/* ---- Savollar (demo) ---- */
-const P1 = "Ayşe her sabah saat yedide kalkar. Kahvaltıdan sonra otobüsle okula gider. Okulu evinden biraz uzaktır, bu yüzden yolculuk yaklaşık kırk dakika sürer. Akşam eve döndüğünde kitap okumayı sever.";
-const Q = [
-  {p:P1, q:"Ayşe okula nasıl gider?", o:["Yürüyerek","Otobüsle","Bisikletle","Arabayla"], a:1,
-   e:"Matnda: «otobüsle okula gider». To‘g‘ri javob B."},
-  {p:P1, q:"Ayşe akşam eve döndüğünde ne yapmayı sever?", o:["Televizyon izlemeyi","Müzik dinlemeyi","Kitap okumayı","Yemek yapmayı"], a:2,
-   e:"Matnning oxirgi gapi: «kitap okumayı sever». To‘g‘ri javob C."},
-  {p:"", q:"Dün arkadaşlarımla sinemaya ____.", o:["gidiyorum","gittim","gideceğim","gider"], a:1,
-   e:"«Dün» o‘tgan zamonni bildiradi, shuning uchun -di qo‘shimchasi: gittim."},
-  {p:"", q:"Yarın hava güzel olursa pikniğe ____.", o:["gideriz","gittik","gidiyorduk","gitmiştik"], a:0,
-   e:"«Yarın» kelasi zamon + shart mayli (-sa). Kelasi/keng zamon: gideriz."},
-  {p:"Sınavdan önce çok ders çalıştığım için başarılı oldum.", q:"Bu cümlede «için» neyi gösterir?", o:["Zaman","Sebep","Karşılaştırma","Şart"], a:1,
-   e:"«Çok ders çalıştığım için» = sabab. Natija: muvaffaqiyat."}
-];
-const TIME = 10*60;
-let cur=0, ans=[], left=TIME, tick=null;
+const EXAMS = window.EXAMS || [];
+let exam=null, Q=[], cur=0, ans=[], left=0, tick=null;
 
 function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id)); window.scrollTo(0,0); }
 function soon(){ const m='Bu bo‘lim tez orada qo‘shiladi'; tg && tg.showAlert ? tg.showAlert(m) : alert(m); }
-function openList(){ show('list'); }
 
-function startTest(){
-  cur=0; ans=Array(Q.length).fill(null); left=TIME;
+const NAMES={okuma:'Okuma',dinleme:'Dinleme'};
+function countQ(e){ return e.parts.reduce((n,p)=>n+p.questions.length,0); }
+
+function openList(skill){
+  document.getElementById('ltitle').textContent = skill ? NAMES[skill] : 'Mock imtihonlar';
+  const box=document.getElementById('exams'); box.innerHTML='';
+  const list=EXAMS.filter(e=>!skill||e.skill===skill);
+  if(!list.length){ box.innerHTML='<p class="note">Bu bo‘limda hali test yo‘q.</p>'; }
+  list.forEach(e=>{
+    const c=document.createElement('button'); c.className='card';
+    c.innerHTML='<h3></h3><p></p><span class="btn">Boshlash</span>';
+    c.querySelector('h3').textContent=e.title;
+    c.querySelector('p').textContent=countQ(e)+' ta savol · '+e.minutes+' daqiqa';
+    c.onclick=()=>startTest(e.id);
+    box.appendChild(c);
+  });
+  show('list');
+}
+
+function startTest(id){
+  exam=EXAMS.find(e=>e.id===id); if(!exam) return;
+  Q=[]; exam.parts.forEach(p=>p.questions.forEach(q=>Q.push({
+    part:p, q:q.q, o:q.o, a:'ABCD'.indexOf(q.a), e:q.e })));
+  cur=0; ans=Array(Q.length).fill(null); left=exam.minutes*60;
+  document.getElementById('ttitle').textContent=exam.title;
   clearInterval(tick); tick=setInterval(()=>{ left--; drawTimer(); if(left<=0) finish(); },1000);
   drawTimer(); show('test'); drawQ();
 }
@@ -225,15 +229,20 @@ function drawTimer(){
   t.classList.toggle('low', left<60);
 }
 function drawQ(){
-  const d=Q[cur], box=document.getElementById('qbox');
-  box.innerHTML='';
-  if(d.p){ const p=document.createElement('div'); p.className='passage'; p.textContent=d.p; box.appendChild(p); }
+  const d=Q[cur], box=document.getElementById('qbox'); box.innerHTML='';
+  if(d.part.audio){
+    const a=document.createElement('audio'); a.className='audio'; a.controls=true; a.preload='none'; a.src=d.part.audio; box.appendChild(a);
+  } else if(exam.skill==='dinleme'){
+    const m=document.createElement('p'); m.className='note'; m.textContent='Audio hali yuklanmagan.'; box.appendChild(m);
+  }
+  if(d.part.text){ const p=document.createElement('div'); p.className='passage'; p.textContent=d.part.text; box.appendChild(p); }
   const n=document.createElement('div'); n.className='qno'; n.textContent='Savol '+(cur+1)+' / '+Q.length; box.appendChild(n);
   const q=document.createElement('div'); q.className='qtext'; q.textContent=d.q; box.appendChild(q);
   d.o.forEach((txt,i)=>{
     const b=document.createElement('button'); b.className='opt'+(ans[cur]===i?' sel':'');
     b.innerHTML='<span class="bub">'+'ABCD'[i]+'</span><span></span>'; b.lastChild.textContent=txt;
-    b.onclick=()=>{ ans[cur]=i; drawQ(); tg&&tg.HapticFeedback&&tg.HapticFeedback.selectionChanged(); };
+    b.onclick=()=>{ ans[cur]=i; box.querySelectorAll('.opt').forEach((x,k)=>x.classList.toggle('sel',k===i));
+      tg&&tg.HapticFeedback&&tg.HapticFeedback.selectionChanged(); };
     box.appendChild(b);
   });
   document.getElementById('prog').style.width=((cur+1)/Q.length*100)+'%';
@@ -252,7 +261,7 @@ function openSheet(){
 }
 function closeSheet(){ document.getElementById('sheet').classList.remove('on'); }
 function confirmExit(){
-  if(confirm('Testdan chiqasizmi? Natija saqlanmaydi.')){ clearInterval(tick); show('list'); }
+  if(confirm('Testdan chiqasizmi? Natija saqlanmaydi.')){ clearInterval(tick); show('home'); }
 }
 function finish(){
   clearInterval(tick); closeSheet();
@@ -273,7 +282,7 @@ function finish(){
       const o=document.createElement('div'); o.className='opt'+(k===d.a?' right':(k===ans[i]?' wrong':''));
       o.innerHTML='<span class="bub">'+'ABCD'[k]+'</span><span></span>'; o.lastChild.textContent=t; rb.appendChild(o);
     });
-    const e=document.createElement('div'); e.className='expl'; e.textContent=(ans[i]===null?'Javob berilmadi. ':'')+d.e; rb.appendChild(e);
+    const e=document.createElement('div'); e.className='expl'; e.textContent=(ans[i]===null?'Javob berilmadi. ':'')+(d.e||''); rb.appendChild(e);
   });
   show('result');
 }
